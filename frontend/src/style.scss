@@ -1,0 +1,290 @@
+
+@font-face {
+  font-family: 'WorkSans';
+  src: url('./assert/font/WorkSans-Regular.woff2'), format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'WorkSans';
+  src: url('./assert/font/WorkSans-SemiBold.woff2'), format('woff2');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'WorkSans';
+  src: url('./assert/font/WorkSans-Bold.woff2'), format('woff2');
+  font-weight: 700;
+  font-style: bold;
+}
+
+body {
+  font-family: 'WorkSans', sans-serif;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+}
+
+input:focus, input:focus-visible {
+  outline: none;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+h1 , h2, h3, h4{
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+}
+
+.container {
+  max-width: 1340px;
+  margin: 0 auto;
+}
+
+.header {
+  background-color: #116ACC;
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
+}
+
+.header__line {
+  display: flex;
+  justify-content: space-between;
+  padding: 25px 0;
+}
+
+.main {
+  padding: 50px 0;
+}
+
+.main__login-from {
+  position: fixed;
+  top:50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-form  {
+  display: flex;
+  flex-direction: column;
+  padding: 50px 85px 75px 50px;
+  background: #F3F4F6;
+  border-radius: 50px;
+}
+
+.error {
+  align-self:center;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: #BA0000;
+  padding-left: 30px;
+  background-image: url('./assert/img/error.svg');
+  background-position: left center;
+  background-repeat: no-repeat;
+  margin-bottom: 5px;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 40px;
+  color: #000000;
+}
+
+.login-form__title {
+  padding-left: 70px;
+  margin-bottom: 35px;
+}
+
+.login-form__input-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.login-form__input-wrapper span {
+  margin-right: 18px;
+}
+
+.login-form__input-wrapper:last-child {
+  margin-bottom: 30px;
+}
+
+.login-form__button {
+  position: absolute;
+  bottom: 19px;
+  left: 122px;
+  padding: 14px 21px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #FFFFFF;
+  background: #116ACC;
+  border-radius: 7px;
+  border: none;
+}
+
+.login-form__input {
+  width: 300px;
+  padding: 10px 14px;
+  border: 1px solid #9CA3AF;
+  border-radius: 7px;
+}
+
+.error-input {
+  border-color: #BA0000;
+}
+
+.spinner {
+  position: absolute;
+  top:50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #B3CEE2;
+  border-radius: 50%;
+  border-left-color: #116ACC;
+  border-right-color: #116ACC;
+  border-top-color: #116ACC;
+  border-bottom-color: transparent;
+  height: 64px;
+  width: 64px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
+
+.main__container {
+  position: relative;
+}
+
+.choices {
+  position: absolute;
+  top: 0;
+  left: 240px;
+  width: 300px;
+}
+
+.check__button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 16px 24px 16px 54px;
+  background: #116ACC;
+  border-radius: 7px;
+  color: #FFFFFF;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  background-image: url('./assert/img/X.svg');
+  background-repeat: no-repeat;
+  background-position: 25px center;
+}
+
+.check__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.check__item {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: 400px;
+  padding: 22px;
+  margin-bottom: 50px;
+  margin-right: 50px;
+  background: #FFFFFF;
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
+  border-radius: 9px;
+}
+
+.check__item:nth-child(3n) {
+  margin-right: 0;
+}
+
+.check__item-id {
+  margin-bottom: 9px;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 22px;
+  color: #182233;
+}
+
+.check__item-price {
+  margin-bottom: 31px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  color: #182233;
+}
+
+.check__item-last {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 15px;
+  color: #000000;
+}
+
+.check__item-date {
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 15px;
+  color: #000000;
+}
+
+.main__title {
+  margin-bottom: 57px;
+}
+
+.check__item-btn {
+  position: absolute;
+  bottom: 22px;
+  right: 22px;
+  padding: 16px 21.5px;
+  background: #116ACC;
+  border-radius: 7px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: #FFFFFF;
+}
+
+.header__nav-btn:not(:last-child) {
+  margin-right: 25px;
+}
+
+.header__nav-btn {
+  padding: 12px 22px;
+  background: #FFFFFF;
+  border-radius: 7px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: #116ACC;
+}
+
+.header__nav-btn--active {
+  background: #A0C3FF;
+}
