@@ -33,6 +33,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "chart.js": "^3.9.1",
     "choices.js": "^10.1.0",
     "nice-select2": "^2.0.0",
     "umbrellajs": "^3.3.1"

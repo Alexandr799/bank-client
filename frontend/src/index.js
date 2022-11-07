@@ -39,3 +39,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     path ? path : 'check'
   );
 });
+
+u('.qwe').on('click', () => {
+  const href = window.location.origin + `#${Math.random()}`;
+  history.pushState(null, '', href);
+});
+
+window.addEventListener('hashchange', () => {
+  console.log(window.location.hash);
+});

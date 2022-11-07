@@ -45,4 +45,28 @@ export class BankingApi {
         return res;
       });
   }
+
+  static pullDetailsAccaunts(token, id) {
+    return fetch(`http://localhost:3000/account/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Basic ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error === 'Unauthorized') {
+          const err = new Error();
+          err.type = 'Unauthorized';
+          throw err;
+        }
+        if (res.error === 'No such account') {
+          const err = new Error();
+          err.type = 'No such account';
+          throw err;
+        }
+        return res;
+      });
+  }
 }
