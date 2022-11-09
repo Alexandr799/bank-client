@@ -47,6 +47,7 @@ module.exports = (env) => ({
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Coin',
+      template: './index.html',
     }),
     new MiniCssExtractPlugin({
       filename: 'main.[contenthash].css',

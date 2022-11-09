@@ -35,7 +35,9 @@
   "dependencies": {
     "chart.js": "^3.9.1",
     "choices.js": "^10.1.0",
+    "navigo": "^8.11.1",
     "nice-select2": "^2.0.0",
-    "umbrellajs": "^3.3.1"
+    "umbrellajs": "^3.3.1",
+    "ymaps": "^0.2.1"
   }
 }

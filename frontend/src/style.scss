@@ -97,6 +97,22 @@ ul {
   margin-bottom: 5px;
 }
 
+.error-big {
+  position: absolute;
+  top:50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  align-self:center;
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 25px;
+  color: #BA0000;
+  padding-left: 30px;
+  background-image: url('./assert/img/error.svg');
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+
 .title {
   font-weight: 700;
   font-size: 34px;
@@ -359,6 +375,11 @@ ul {
   border-radius: 7px;
 }
 
+.choices__inner {
+  border-radius: 7px;
+  border: 1px solid #116ACC;
+}
+
 .main__form-tranz-wrapper-number .choices {
   position: relative;
   left: 0;
@@ -457,7 +478,7 @@ ul {
 }
 
 .main__grafic-title {
-  margin-bottom: 25px;
+  position: relative;
   font-weight: 700;
   font-size: 20px;
   line-height: 23px;
@@ -468,15 +489,44 @@ ul {
   position: absolute;
   top:150px;
   right: 0;
-  padding: 20px 50px;
+  padding: 20px 50px 33px 50px;
   width: 684px;
   background: #FFFFFF;
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
   border-radius: 50px;
+  height: 288px;
 }
 
 .to-history {
   cursor: pointer;
 }
 
+.main__grafic-big {
+  position: relative;
+  margin-bottom: 50px;
+  padding: 25px 100px 35px 100px;
+  width: 100%;
+  background: #FFFFFF;
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
+  border-radius: 50px;
+  height: 288px;
+}
 
+.main__table-wrapper{
+  padding: 25px 70px;
+  background: #F3F4F6;
+  border-radius: 56px;
+}
+
+.table__null {
+  padding-top: 30px;
+  text-align: center;
+  font-size: 22px;
+}
+
+.grafic__null {
+  position: absolute;
+  top:50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+}

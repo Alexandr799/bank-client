@@ -8,6 +8,16 @@ export class BankingApi {
       headers: { 'Content-Type': 'application/json' },
     })
       .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 500;
+          throw err;
+        }
         return res.json();
       })
       .then((res) => {
@@ -34,6 +44,20 @@ export class BankingApi {
       },
     })
       .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error(
+            'Что то пошло не так попробуйте перезагрузить позже!'
+          );
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error(
+            'Что то пошло не так попробуйте перезагрузить позже!'
+          );
+          err.type = 500;
+          throw err;
+        }
         return res.json();
       })
       .then((res) => {
@@ -54,7 +78,23 @@ export class BankingApi {
         authorization: `Basic ${token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error(
+            'Что то пошло не так попробуйте перезагрузить позже!'
+          );
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error(
+            'Что то пошло не так попробуйте перезагрузить позже!'
+          );
+          err.type = 500;
+          throw err;
+        }
+        return res.json();
+      })
       .then((res) => {
         if (res.error === 'Unauthorized') {
           const err = new Error();
@@ -67,6 +107,57 @@ export class BankingApi {
           throw err;
         }
         return res;
+      });
+  }
+
+  static getBanks() {
+    return fetch(`http://localhost:3000/banks`)
+      .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 500;
+          throw err;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        return data;
+      });
+  }
+
+  static createAccount(token) {
+    return fetch('http://localhost:3000/create-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Basic ${token}`,
+      },
+    })
+      .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 500;
+          throw err;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.error === 'Unauthorized') {
+          const err = new Error();
+          err.type = 'Unauthorized';
+          throw err;
+        }
+        return data;
       });
   }
 }
