@@ -1,8 +1,10 @@
 import u from 'umbrellajs';
 import logo from './assert/img/Logo.svg';
 import { initRouter } from './routing.js';
+import 'simplebar';
 import './normalize.css';
 import '../node_modules/choices.js/public/assets/styles/choices.min.css';
+import 'simplebar/dist/simplebar.css';
 import './style.scss';
 
 u('body').append(u('<header>').addClass('header'));

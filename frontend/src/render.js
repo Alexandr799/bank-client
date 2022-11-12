@@ -1,5 +1,4 @@
 import u from 'umbrellajs';
-import Choices from 'choices.js';
 import Chart from 'chart.js/auto';
 import ymaps from 'ymaps';
 
@@ -10,25 +9,25 @@ export class RenderElem {
     return u('<form>')
       .addClass('login-form', 'main__login-from')
       .append(
-        u('<h1>').addClass('title', 'login-form__title').html('Вход в аккаунт')
+        u('<h1>').addClass('title', 'login-form__title').text('Вход в аккаунт')
       )
       .append(
         u('<div>')
           .addClass('login-form__input-wrapper', 'login-wrapper')
-          .append(u('<span>').addClass('login-form__descr').html('Логин'))
+          .append(u('<span>').addClass('login-form__descr').text('Логин'))
           .append(u('<input>').addClass('login-form__input', 'login'))
       )
       .append(
         u('<div>')
           .addClass('login-form__input-wrapper', 'password-wrapper')
-          .append(u('<span>').addClass('login-form__descr').html('Пароль'))
+          .append(u('<span>').addClass('login-form__descr').text('Пароль'))
           .append(
             u('<input>')
               .addClass('login-form__input', 'password')
               .attr('type', 'password')
           )
       )
-      .append(u('<button>').addClass('login-form__button').html('Войти'));
+      .append(u('<button>').addClass('login-form__button').text('Войти'));
   }
 
   static cleanErrors(elem) {
@@ -40,9 +39,14 @@ export class RenderElem {
     });
   }
 
-  static error(elem, error, classname = 'error') {
+  static error(elem, message, classname = 'error') {
     elem.find('input').addClass('error-input');
-    elem.before(u('<span>').addClass(classname).text(error.message));
+    elem.append(
+      u('<span>')
+        .addClass(classname)
+        .text(message)
+        .attr('style', `top:${elem.nodes[0].clientHeight}px`)
+    );
   }
 
   static spinner(elem) {
@@ -53,11 +57,65 @@ export class RenderElem {
     const nav = u('<div>')
       .addClass('header__nav')
       .append(u('<button>').text('Банкоматы').attr('data-value', 'banks'))
-      .append(u('<button>').text('Счета').attr('data-value', 'check'))
+      .append(u('<button>').text('Счета').attr('data-value', 'account'))
       .append(u('<button>').text('Валюта').attr('data-value', 'currency'))
       .append(u('<button>').text('Выйти').attr('data-value', 'exit'));
     nav.children().addClass('header__nav-btn');
     elem.append(nav);
+  }
+
+  static initDropdownInput(value, dropdownMenu, list, input) {
+    const valuesList = [];
+    dropdownMenu.children().each((elem) => {
+      const el = u(elem);
+      if (!el.text().startsWith(value)) {
+        el.remove();
+      } else {
+        valuesList.push(el.text());
+      }
+    });
+    dropdownMenu.parent().on('click', (e) => {
+      e.dropdown = true;
+    });
+
+    for (let i of list) {
+      if (dropdownMenu.children().nodes.length > 9) break;
+      if (i.startsWith(value) && !valuesList.includes(i)) {
+        dropdownMenu.append(u('<li>').text(i));
+      }
+    }
+
+    if (dropdownMenu.children().nodes.length > 0) {
+      dropdownMenu.addClass('dropdown-menu--open');
+      dropdownMenu.children().each((el) => {
+        u(el).on('click', (e) => {
+          e.dropdown = true;
+          input.value = u(el).text();
+          u(input).removeClass('error-input');
+          u('.main__form-tranz-wrapper-number').find('.error').remove();
+          dropdownMenu.removeClass('dropdown-menu--open');
+        });
+      });
+    } else {
+      dropdownMenu.removeClass('dropdown-menu--open');
+    }
+  }
+
+  static initNav(router, path) {
+    if (document.querySelector('.header__nav') === null) {
+      RenderElem.navMenu(u('.header__line'));
+      u('.header__nav-btn').each((node) => {
+        u(node).on('click', async () => {
+          const p = u(node).attr('data-value');
+          router.navigate(p);
+        });
+      });
+    }
+    u(`.header__nav-btn`).removeClass('header__nav-btn--active');
+    if (!path) return;
+    u(`.header__nav-btn[data-value=${path}]`).addClass(
+      'header__nav-btn--active'
+    );
   }
 }
 
@@ -68,8 +126,8 @@ class Page {
   }
 
   parseMethods(btnActionObj) {
-    for (let btn of Object.keys(btnActionObj)) {
-      u(btn).on('click', btnActionObj[btn]);
+    for (let btn of btnActionObj) {
+      u(btn[0]).on(btn[1][1], btn[1][0]);
     }
   }
 }
@@ -81,15 +139,28 @@ export class HeadPage extends Page {
     container
       .append(u('<h1>').addClass('title', 'main__title').text('Ваши счета'))
       .append(
-        u('<select>').html(`<option value="">Сортировка</option>
-			<option value="number">По номеру</option>
-			<option value="balance">По балансу</option>
-			<option value="transaction">По последней транзакции</option>`)
+        u('<div>')
+          .addClass('dropdown-wrapper', 'dropdown-sort-wrapper')
+          .html(
+            `<svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0.951904 0.5L5.9519 5.5L10.9519 0.5L0.951904 0.5Z" fill="#182233"/>
+          </svg>`
+          )
+          .append(u('<span>').text('Сортировка'))
+          .append(
+            u('<ul>')
+              .addClass('dropdown-menu')
+              .append(u('<li>').text('По номеру').addClass('number-sort'))
+              .append(u('<li>').text('По балансу').addClass('balance-sort'))
+              .append(
+                u('<li>').text('По последней тразакции').addClass('data-sort')
+              )
+          )
       )
       .append(
-        u('<button>').addClass('check__button').text('Создать новый счёт')
+        u('<button>').addClass('account__button').text('Создать новый счёт')
       );
-    const gridAccs = u('<ul>').addClass('check__list');
+    const gridAccs = u('<ul>').addClass('account__list');
     for (let a of accs) {
       let balance = String(a.balance);
       balance =
@@ -118,36 +189,36 @@ export class HeadPage extends Page {
         lastDateTrans = '';
       }
       const listItem = u('<li>')
-        .addClass('check__item')
-        .append(u('<span>').text(`${a.account}`).addClass('check__item-id'))
-        .append(u('<span>').text(`${balance}`).addClass('check__item-price'))
+        .addClass('account__item')
+        .attr({
+          'data-id': a.account,
+          'data-balance': a.balance === 0 ? '0' : a.balance,
+          'data-date': a.transactions[0] ? a.transactions[0].date : '0',
+        })
+        .append(u('<span>').text(`${a.account}`).addClass('account__item-id'))
+        .append(u('<span>').text(`${balance}`).addClass('account__item-price'))
         .append(
-          u('<span>').text('Последняя транзакция').addClass('check__item-last')
+          u('<span>')
+            .text('Последняя транзакция')
+            .addClass('account__item-last')
         )
         .append(
-          u('<span>').text(`${lastDateTrans}`).addClass('check__item-date')
+          u('<span>').text(`${lastDateTrans}`).addClass('account__item-date')
         )
         .append(
           u('<button>')
             .text('Открыть')
-            .addClass('check__item-btn')
+            .addClass('account__item-btn')
             .attr('data-id', `${a.account}`)
         );
       gridAccs.append(listItem);
     }
     container.append(gridAccs);
-    new Choices('select', {
-      placeholder: false,
-      allowHTML: true,
-      searchEnabled: false,
-      duplicateItemsAllowed: false,
-      itemSelectText: '',
-    });
   }
 
   updateList(accs) {
-    u('.check__list').html('');
-    const gridAccs = u('.check__list');
+    u('.account__list').html('');
+    const gridAccs = u('.account__list');
     for (let a of accs) {
       let balance = String(a.balance);
       balance =
@@ -176,19 +247,21 @@ export class HeadPage extends Page {
         lastDateTrans = '';
       }
       const listItem = u('<li>')
-        .addClass('check__item')
-        .append(u('<span>').text(`${a.account}`).addClass('check__item-id'))
-        .append(u('<span>').text(`${balance}`).addClass('check__item-price'))
+        .addClass('account__item')
+        .append(u('<span>').text(`${a.account}`).addClass('account__item-id'))
+        .append(u('<span>').text(`${balance}`).addClass('account__item-price'))
         .append(
-          u('<span>').text('Последняя транзакция').addClass('check__item-last')
+          u('<span>')
+            .text('Последняя транзакция')
+            .addClass('account__item-last')
         )
         .append(
-          u('<span>').text(`${lastDateTrans}`).addClass('check__item-date')
+          u('<span>').text(`${lastDateTrans}`).addClass('account__item-date')
         )
         .append(
           u('<button>')
             .text('Открыть')
-            .addClass('check__item-btn')
+            .addClass('account__item-btn')
             .attr('data-id', `${a.account}`)
         );
       gridAccs.append(listItem);
@@ -203,20 +276,20 @@ export class HeadPage extends Page {
 }
 
 export class DetailsPage extends Page {
-  cleanData(transactions, balanceCurrent, lastTrans, countStat) {
+  cleanData(transactions, balanceCurrent, lastTrans, countStat, ourFrom) {
     const monthsList = [
-      'Янв',
-      'Фев',
-      'Мар',
-      'Апр',
-      'Май',
-      'Июн',
-      'Июл',
-      'Авг',
-      'Сен',
-      'Окт',
-      'Ноя',
-      'Дек',
+      '1.Янв',
+      '1.Фев',
+      '1.Мар',
+      '1.Апр',
+      '1.Май',
+      '1.Июн',
+      '1.Июл',
+      '1.Авг',
+      '1.Сен',
+      '1.Окт',
+      '1.Ноя',
+      '1.Дек',
     ];
     let m = lastTrans.getMonth();
     let y = lastTrans.getFullYear();
@@ -224,7 +297,6 @@ export class DetailsPage extends Page {
     let balance = balanceCurrent;
     let counter = countStat;
     for (let i = transactions.length - 1; i >= 0; i--) {
-      balance = balance - transactions[i].amount;
       const transDate = new Date(transactions[i].date);
       if (m != transDate.getMonth() || y != transDate.getFullYear()) {
         data.push([`${y}г. ` + monthsList[m], balance]);
@@ -232,6 +304,10 @@ export class DetailsPage extends Page {
         y = transDate.getFullYear();
         counter = counter - 1;
       }
+      balance =
+        transactions[i].from === ourFrom
+          ? balance + transactions[i].amount
+          : balance - transactions[i].amount;
       if (counter === 0) break;
     }
     const dataKeys = data.map((el) => {
@@ -244,7 +320,7 @@ export class DetailsPage extends Page {
     return [dataKeys.reverse(), dataVal.reverse()];
   }
 
-  cleanDataStructor(transactions, balanceCurrent, lastTrans, countStat) {
+  cleanDataStructor(transactions, ourFrom, lastTrans, countStat) {
     const monthsList = [
       'Янв',
       'Фев',
@@ -265,33 +341,36 @@ export class DetailsPage extends Page {
     let counter = countStat;
     let plusTrans = 0;
     let minusTrans = 0;
+    const labels = [];
     for (let i = transactions.length - 1; i >= 0; i--) {
-      transactions[i].amount > 0
-        ? (plusTrans = plusTrans + transactions[i].amount)
-        : (minusTrans = minusTrans + transactions[i].amount * -1);
       const transDate = new Date(transactions[i].date);
       if (m != transDate.getMonth() || y != transDate.getFullYear()) {
-        data.push([`${y}г. ` + monthsList[m], [plusTrans, minusTrans]]);
+        labels.push(`${y}г. ` + monthsList[m]);
+        data.push([plusTrans, minusTrans]);
         m = transDate.getMonth();
         y = transDate.getFullYear();
         plusTrans = 0;
         minusTrans = 0;
         counter = counter - 1;
       }
+      transactions[i].from === ourFrom
+        ? (minusTrans = minusTrans + transactions[i].amount * -1)
+        : (plusTrans = plusTrans + transactions[i].amount);
+      if (i === 0 && !labels.includes(`${y}г. ` + monthsList[m])) {
+        labels.push(`${y}г. ` + monthsList[m]);
+        data.push([plusTrans, minusTrans]);
+      }
       if (counter === 0) break;
     }
-    const dataKeys = data.map((el) => {
+
+    const dataValPlus = data.map((el) => {
       return el[0];
     });
 
-    const dataValPlus = data.map((el) => {
-      return el[1][0];
-    });
-
     const dataValMinus = data.map((el) => {
-      return el[1][1];
+      return el[1];
     });
-    return [dataKeys.reverse(), dataValPlus.reverse(), dataValMinus.reverse()];
+    return [labels.reverse(), dataValPlus.reverse(), dataValMinus.reverse()];
   }
 
   renderBalance(elem, accs) {
@@ -300,10 +379,39 @@ export class DetailsPage extends Page {
     balance.append(u('<span>').text('Баланс'));
     let count = accs.balance.toString();
     count = count.replace(/(\d{1,3}(?=(?:\d\d\d)+(?!\d)))/g, '$1' + ' ') + ' ₽';
-    balance.append(u('<span>').text(count));
+    balance.append(u('<span>').text(count).addClass('amount-balance'));
+  }
+
+  updateBalance(res) {
+    let data = res.toString();
+    data = data.replace(/(\d{1,3}(?=(?:\d\d\d)+(?!\d)))/g, '$1' + ' ') + ' ₽';
+    u('.amount-balance').text(data);
+  }
+
+  appendInTable(accs) {
+    const ourFrom = accs.account;
+    const trans = accs.transactions[accs.transactions.length - 1];
+    const elemTable = u('.main__history-table').children('.main__history-row')
+      .nodes.length;
+    if (elemTable > 9) u('.main__history-row').last().remove();
+    const row = u('<div>').addClass('main__history-row');
+    row.append(u('<div>').text(trans.from));
+    row.append(u('<div>').text(trans.to));
+    let amount = trans.amount;
+    const classAmount = trans.from === ourFrom ? 'credit' : 'debit';
+    amount = trans.from === ourFrom ? `-${amount} ₽` : `+${amount} ₽`;
+    row.append(u('<div>').text(amount).addClass(classAmount));
+    let date = new Date(trans.date);
+    const day = date.getDate().toString();
+    const month = date.getMonth().toString();
+    const year = date.getFullYear().toString();
+    date = day + '.' + month + '.' + year;
+    row.append(u('<div>').text(date));
+    u('.main__table-head').after(row);
   }
 
   renderTable(elem, accs, countRow) {
+    const ourFrom = accs.account;
     const table = u('<div>').addClass('main__history-table');
     const wrapperTable = u('<div>')
       .addClass('main__table-wrapper', 'to-history')
@@ -324,17 +432,19 @@ export class DetailsPage extends Page {
       );
       return;
     }
-    for (let i = trans.length; i > trans.length - countRow; i--) {
+    for (let i = trans.length - 1; i > trans.length - 1 - countRow; i--) {
+      if (i < 0) break;
       const row = u('<div>').addClass('main__history-row');
-      row.append(u('<div>').text(trans[i - 1].from));
-      row.append(u('<div>').text(trans[i - 1].to));
-      let amount = trans[i - 1].amount;
-      const classAmount = amount > 0 ? 'debit' : 'credit';
-      amount = amount > 0 ? `+${amount} ₽` : `-${amount} ₽`;
+      row.append(u('<div>').text(trans[i].from));
+      row.append(u('<div>').text(trans[i].to));
+      let amount = trans[i].amount;
+      const classAmount = trans[i].from === ourFrom ? 'credit' : 'debit';
+      amount = trans[i].from === ourFrom ? `-${amount} ₽` : `+${amount} ₽`;
       row.append(u('<div>').text(amount).addClass(classAmount));
-      let date = new Date(trans[i - 1].date);
+      let date = new Date(trans[i].date);
       const day = date.getDate().toString();
-      const month = date.getMonth().toString();
+      let month = date.getMonth() + 1;
+      month = month.toString();
       const year = date.getFullYear().toString();
       date = day + '.' + month + '.' + year;
       row.append(u('<div>').text(date));
@@ -363,7 +473,8 @@ export class DetailsPage extends Page {
       accs.transactions,
       accs.balance,
       new Date(accs.transactions[accs.transactions.length - 1].date),
-      countCol
+      countCol,
+      accs.account
     );
     const maxValue = Math.max.apply(null, data[1]);
     const minValue = Math.min.apply(null, data[1]);
@@ -464,7 +575,7 @@ export class DetailsPage extends Page {
     );
     let data = this.cleanDataStructor(
       accs.transactions,
-      accs.balance,
+      accs.account,
       new Date(accs.transactions[accs.transactions.length - 1].date),
       countCol
     );
@@ -574,7 +685,7 @@ export class DetailsPage extends Page {
       )
       .append(
         u('<button>')
-          .addClass('check__button', 'check__button-back')
+          .addClass('account__button', 'account__button-back')
           .text('Вернуться назад')
       );
 
@@ -595,9 +706,15 @@ export class DetailsPage extends Page {
               .addClass('main__form-tranz-descr')
           )
           .append(
-            u('<select>')
-              .addClass('main__form-tranz-number')
-              .attr('placeholder', 'Введите номер счета')
+            u('<div>')
+              .addClass('dropdown-wrapper')
+              .append(
+                u('<input>')
+                  .addClass('main__form-tranz-number')
+                  .attr('placeholder', 'Введите номер счета')
+                  .attr('type', 'tel')
+              )
+              .append(u('<ul>').addClass('dropdown-menu'))
           )
       )
       .append(
@@ -612,17 +729,25 @@ export class DetailsPage extends Page {
             u('<input>')
               .addClass('main__form-tranz-count')
               .attr('placeholder', 'Введите сумму')
+              .attr('type', 'tel')
           )
       )
       .append(u('<button>').addClass('main__form-tranz-btn').html('Отправить'));
 
-    new Choices('select', {
-      placeholder: false,
-      allowHTML: true,
-      searchEnabled: false,
-      duplicateItemsAllowed: false,
-      itemSelectText: '',
-    });
+    const itemAccount = localStorage.getItem('accs');
+    const variable = [];
+    if (itemAccount != null) {
+      const items = JSON.parse(itemAccount);
+      let iter = 1;
+      for (let i of items) {
+        variable.push({
+          value: i,
+          label: i,
+          id: iter,
+        });
+        iter++;
+      }
+    }
 
     this.renderTable(container, accs, 10);
 
@@ -655,7 +780,7 @@ export class HistoryPage extends DetailsPage {
       )
       .append(
         u('<button>')
-          .addClass('check__button', 'check__button-back')
+          .addClass('account__button', 'account__button-back')
           .text('Вернуться назад')
       );
 
@@ -707,5 +832,125 @@ export class BanksPage extends Page {
       });
       myMap.geoObjects.add(myGeoObject);
     }
+  }
+}
+
+export class CurrencyPage extends Page {
+  renderDropdown(list, value) {
+    const menu = u('<ul>')
+      .addClass('dropdown-menu')
+      .data('simplebar', 'simplebar');
+    for (let i of list) {
+      const li = u('<li>').text(i);
+      li.on('click', (e) => {
+        u(e.currentTarget)
+          .closest('.dropdown-currency-wrapper')
+          .find('.dropdown-value')
+          .text(e.currentTarget.textContent);
+      });
+      menu.append(li);
+    }
+    const res = u('<div>')
+      .addClass('dropdown-wrapper', 'dropdown-currency-wrapper')
+      .html(
+        `<svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0.951904 0.5L5.9519 5.5L10.9519 0.5L0.951904 0.5Z" fill="#182233"/>
+    </svg>`
+      )
+      .append(u('<span>').text(value).addClass('dropdown-value'))
+      .append(menu);
+
+    return res;
+  }
+
+  render(elem, accs) {
+    const currencyAccount = accs[0].payload;
+    const currencyList = accs[1].payload;
+    console.log(currencyList);
+    const container = u('<div>').addClass(
+      'container',
+      'main__container',
+      'container-currency'
+    );
+    elem.append(container);
+    container.append(
+      u('<h1>')
+        .addClass('title', 'main__title', 'main__title-currency')
+        .text('Карта банкоматов')
+        .text('Валютный обмен')
+    );
+    const row = u('<div>').addClass('container-currency__row');
+    row
+      .append(
+        u('<div>')
+          .addClass('container-currency__col')
+          .append(
+            u('<div>')
+              .addClass('currency-list-wrapper')
+              .append(
+                u('<h2>').text('Ваши валюты').addClass('currency-subtitle')
+              )
+          )
+          .append(
+            u('<form>')
+              .addClass('currency-charge')
+              .append(
+                u('<h2>').text('Обмен валюты').addClass('currency-subtitle')
+              )
+          )
+      )
+      .append(
+        u('<div>')
+          .addClass('container-currency__col')
+          .append(
+            u('<div>')
+              .addClass('currency-change-wrapper')
+              .append(
+                u('<h2>')
+                  .text('Изменение курсов в реальном времени')
+                  .addClass('currency-subtitle')
+              )
+          )
+      );
+    container.append(row);
+    const currencyListElem = u('<ul>').addClass('currency-list');
+    const currencyListChangeElem = u('<ul>').addClass('currency-change-list');
+    u('.currency-list-wrapper').append(currencyListElem);
+    u('.currency-change-wrapper').append(currencyListChangeElem);
+    for (let key of Object.keys(currencyAccount)) {
+      if (currencyAccount[key].amount === 0) continue;
+      let balance = currencyAccount[key].amount.toString();
+      balance = balance.replace(/(\d{1,3}(?=(?:\d\d\d)+(?!\d)))/g, '$1' + ' ');
+      const li = u('<li>')
+        .addClass('currency-item')
+        .append(u('<span>').addClass('currency-item-name').text(key))
+        .append(u('<span>').addClass('currency-item-value').text(balance));
+      currencyListElem.append(li);
+    }
+    u('.currency-charge')
+      .append(u('<div>').text('Из').addClass('currency-charge-from'))
+      .append(
+        this.renderDropdown(currencyList, currencyList[0]).addClass(
+          'currency-charge-from-menu'
+        )
+      )
+      .append(u('<div>').text('В').addClass('currency-charge-to'))
+      .append(
+        this.renderDropdown(
+          currencyList,
+          currencyList[currencyList.length - 1]
+        ).addClass('currency-charge-to-menu')
+      )
+      .append(u('<input>').addClass('currency-charge-input'))
+      .append(u('<div>').text('Сумма').addClass('currency-charge-sum'))
+      .append(
+        u('<button>').text('Обменять').addClass('currency-charge-button')
+      );
+  }
+
+  init(btnActionObj) {
+    this.render(this.elemPaste, this.data);
+    this.parseMethods(btnActionObj);
+    return;
   }
 }

@@ -160,4 +160,96 @@ export class BankingApi {
         return data;
       });
   }
+
+  static async transferFunds(from, to, amount, token) {
+    return fetch('http://localhost:3000/transfer-funds', {
+      method: 'POST',
+      body: JSON.stringify({
+        from,
+        to,
+        amount,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Basic ${token}`,
+      },
+    })
+      .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 500;
+          throw err;
+        }
+        return res.json();
+      })
+      .then((res) => {
+        if (res.error === 'Unauthorized') {
+          const err = new Error();
+          err.type = 'Unauthorized';
+          throw err;
+        }
+        return res;
+      });
+  }
+
+  static getCurrencyAccounts(token) {
+    return fetch('http://localhost:3000/currencies', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Basic ${token}`,
+      },
+    })
+      .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 500;
+          throw err;
+        }
+        return res.json();
+      })
+      .then((res) => {
+        if (res.error === 'Unauthorized') {
+          const err = new Error();
+          err.type = 'Unauthorized';
+          throw err;
+        }
+        return res;
+      });
+  }
+
+  static getKnownCurrwncies() {
+    return fetch('http://localhost:3000/all-currencies')
+      .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 500;
+          throw err;
+        }
+        return res.json();
+      })
+      .then((res) => {
+        if (res.error === 'Unauthorized') {
+          const err = new Error();
+          err.type = 'Unauthorized';
+          throw err;
+        }
+        return res;
+      });
+  }
 }
