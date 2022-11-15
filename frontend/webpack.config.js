@@ -5,6 +5,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // eslint-disable-next-line no-undef
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 // eslint-disable-next-line no-undef
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+// eslint-disable-next-line no-undef
 module.exports = (env) => ({
   entry: './src/index.js',
   output: {
@@ -24,7 +26,7 @@ module.exports = (env) => ({
         },
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,
+        test: /\.(png|svg|jpg|jpeg|ico|ttf)$/i,
         type: 'asset/resource',
       },
       {
@@ -52,6 +54,7 @@ module.exports = (env) => ({
     new MiniCssExtractPlugin({
       filename: 'main.[contenthash].css',
     }),
+    new FaviconsWebpackPlugin('./src/assert/img/Logo.svg'),
   ],
   devServer: {
     hot: true,

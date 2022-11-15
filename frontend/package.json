@@ -18,6 +18,8 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.2.1",
+    "favicons": "^7.0.2",
+    "favicons-webpack-plugin": "^6.0.0-alpha.2",
     "html-webpack-plugin": "^5.5.0",
     "image-minimizer-webpack-plugin": "^3.7.0",
     "imagemin": "^8.0.1",
