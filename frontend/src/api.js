@@ -252,4 +252,66 @@ export class BankingApi {
         return res;
       });
   }
+
+  static exchangeCurrency(from, to, amount, token) {
+    return fetch('http://localhost:3000/currency-buy', {
+      method: 'POST',
+      body: JSON.stringify({
+        from,
+        to,
+        amount,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Basic ${token}`,
+      },
+    })
+      .then((res) => {
+        if (399 < res.status && res.status < 500) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 400;
+          throw err;
+        }
+        if (res.status > 499) {
+          const err = new Error('Что то пошло не так попробуйте еще раз!');
+          err.type = 500;
+          throw err;
+        }
+        return res.json();
+      })
+      .then((res) => {
+        if (res.error === 'Unauthorized') {
+          const err = new Error();
+          err.type = 'Unauthorized';
+          throw err;
+        }
+        if (res.error === 'Overdraft prevented') {
+          const err = new Error('Некорректное значение перевода');
+          err.type = 'Overdraft';
+          throw err;
+        }
+        if (res.error === 'Unknown currency code') {
+          const err = new Error('Передан неверный валютный код');
+          err.type = 'Unknown';
+          throw err;
+        }
+        if (res.error === 'Invalid amount') {
+          const err = new Error(
+            'Не указана сумма перевода, или она отрицательная'
+          );
+          err.type = 'Invalid';
+          throw err;
+        }
+        if (res.error === 'Not enough currency') {
+          const err = new Error('На валютном счёте списания нет средств');
+          err.type = 'NotEnough';
+          throw err;
+        }
+        return res;
+      });
+  }
+
+  static getChangedCurrency() {
+    return new WebSocket('ws://localhost:3000/currency-feed');
+  }
 }

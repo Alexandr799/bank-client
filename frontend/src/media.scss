@@ -1,0 +1,441 @@
+@media (max-width:1500px){
+  .container {
+    max-width: 900px;
+  }
+
+  .account__list {
+    justify-content: space-between;
+  }
+
+  .account__item:nth-child(3n) {
+    margin-right: 50px;
+  }
+
+  .account__item:nth-child(2n) {
+    margin-right: 0;
+  }
+
+  .main__map {
+    height: 500px !important;
+  }
+
+  .currency-list-wrapper, .currency-charge {
+    padding: 30px;
+  }
+
+  .dropdown-currency-wrapper {
+    width: 85px;
+}
+
+  .currency-charge-from {
+    left: 25px;
+    top: 115px;
+  }
+
+  .currency-charge-from-menu {
+    top: 100px;
+    left: 60px;
+  }
+
+  .currency-charge-to {
+    top: 115px;
+    right: 251px;
+  }
+
+  .currency-charge-to-menu {
+    top: 100px;
+    right: 140px;
+  }
+
+  .currency-charge-button {
+    top: 100px;
+    right: 25px;
+  }
+
+  .currency-charge-sum {
+    left: 25px;
+    bottom: 60px;
+  }
+
+  .currency-charge-input-wrapper {
+    right: 139px;
+    bottom: 50px;
+  }
+
+  .currency-charge-input {
+    width: 200px;
+  }
+
+  .main__grafic {
+    position: static;
+    width: 100%;
+  }
+
+  .main__table-wrapper {
+    padding: 25px 45px;
+}
+
+  .main__table-wrapper {
+    margin-bottom: 50px;
+  }
+
+  .main__table-head {
+    padding: 20px 35px;
+  }
+
+  .main__history-row {
+    padding: 20px 35px;
+  }
+
+  .main__table-head div:nth-child(1), .main__table-head div:nth-child(2) {
+    width: 34%;
+  }
+
+  .main__history-row div:nth-child(1), .main__history-row div:nth-child(2) {
+    width: 34%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .container {
+    max-width: 720px;
+  }
+
+  .account__item:nth-child(2n+1) {
+    margin-right: 20px; 
+  }
+
+  .main__title {
+    margin-bottom: 25px;
+  }
+
+  .account__item {
+    width: 350px;
+  }
+
+  .dropdown-sort-wrapper {
+    width: 300px;
+    position: relative;
+    left: 0;
+    margin-bottom: 25px;
+}
+
+  .account__button {
+    position: relative;
+    margin-bottom: 25px;
+  }
+
+  .container-currency__col {
+    width: 100%;
+  }
+
+  .currency-list-wrapper, .currency-charge, .currency-change-wrapper {
+    padding: 65px;
+  }
+
+  .currency-charge {
+    margin-bottom: 25px;
+  }
+
+  .currency-change-wrapper {
+    min-height: 800px;
+  }
+
+  .currency-charge-button {
+    top: 100px;
+    right: 65px;
+  }
+
+  .dropdown-currency-wrapper {
+    width: 134px;
+  }
+
+  .currency-charge-from {
+    left: 65px;
+  }
+
+  .currency-charge-from-menu {
+    top: 100px;
+    left: 120px;
+  }
+
+  .currency-charge-to {
+    top: 115px;
+    right: 408px;
+  }
+
+  .currency-charge-sum {
+    left: 65px;
+    bottom: 60px;
+  }
+
+  .currency-charge-input {
+    width: 300px; 
+  }
+
+  .currency-charge-input-wrapper {
+    right: 222px;
+  }
+
+  .currency-charge-to-menu {
+    right: 200px;
+}
+
+  .main__table-wrapper {
+    padding: 25px 25px;
+  }
+
+  .main__history-row {
+    padding: 10px 0px;
+  }
+
+  .main__table-head {
+    padding: 20px 0px;
+  }
+
+  .main__history-row div:nth-child(1) {
+    display: none;
+  }
+
+  .main__table-head div:nth-child(1) {
+    display: none;
+  }
+
+  .main__history-row div:nth-child(2) {
+    width: 40%;
+  }
+
+  .main__table-head div:nth-child(2) {
+    width: 40%;
+  }
+
+  .main__table-head div:nth-child(3) {
+    width: 30%;
+  }
+
+  .main__history-row div:nth-child(3) {
+    width: 30%;
+  }
+
+  .main__balance {
+    right: auto;
+    left: 0;
+    top: 117px;
+}
+}
+
+@media (max-width: 800px) {
+  .container {
+    max-width: 500px;
+  }
+
+  .header__line {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header__logo {
+    margin-bottom: 25px;
+  }
+
+  .account__item {
+    width: 100%;
+  }
+
+  .account__item:nth-child(2n+1) {
+    margin-right: 0; 
+  }
+
+  .main__subtitle {
+    margin-bottom: 70px;
+    font-size: 25px;
+    line-height: 25px;
+  }
+
+  .currency-charge-button {
+    right: 30px;
+  }
+
+  .currency-charge-from {
+    left: 30px;
+  } 
+
+  .currency-charge-input-wrapper {
+    right: 140px;
+  }
+
+  .currency-charge-input {
+    width: 250px;
+  } 
+
+  .currency-charge-sum {
+    left: 30px;
+  }
+
+  .currency-list-wrapper, .currency-charge, .currency-change-wrapper {
+    padding: 30px;
+  } 
+
+  .currency-charge-from-menu {
+    left: 68px;
+  }
+
+  .dropdown-currency-wrapper {
+    width: 100px;
+  }
+
+  .currency-charge-to-menu {
+    right: 140px;
+  }
+
+  .currency-charge-to {
+    top: 115px;
+    right: 271px;
+  }
+
+  .currency-charge-from-menu {
+    left: 85px;
+  }
+
+  .main__table-head div:nth-child(2) {
+    display: none;
+  }
+
+  .main__history-row div:nth-child(2) {
+    display: none;
+  }
+
+  .main__table-head div:nth-child(3) {
+    width: 50%;
+  }
+
+  .main__history-row div:nth-child(3) {
+    width: 50%;
+  }
+
+  .main__table-head div:nth-child(4) {
+    width: 50%;
+  }
+
+  .main__history-row div:nth-child(4) {
+    width: 50%;
+  }
+
+  .main__table-head {
+    padding: 20px 60px;
+  }
+
+  .main__history-row {
+    padding: 10px 60px;
+  }
+
+  .main__grafic-big {
+    padding: 25px 15px 45px 10px;
+  }
+
+  .main__grafic {
+    padding: 20px 12px 33px 12px;
+  }
+
+  .main__form-tranz-details {
+   width: 100%;
+  }
+
+  .main__form-tranz-descr {
+    display: none;
+  }
+
+  .main__form-tranz-wrapper-number, .main__form-tranz-wrapper-count {
+   justify-content: center; 
+  }
+
+  .main__title-form {
+    text-align: center;
+  }
+}
+
+@media (max-width:550px) {
+  .container {
+    max-width: 300px;
+  }
+
+  .header__nav {
+    padding: 0  30px;
+    display: flex;
+    width: 320px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .header__nav-btn:nth-child(2n){
+    margin-right: 0;
+  }
+
+  .header__nav-btn {
+    margin-bottom: 20px;
+  }
+
+  .main__map {
+    height: 290px !important;
+  }
+
+  .currency-change-wrapper .spinner {
+    left: 40%;
+  }
+
+  .currency-charge-from {
+    top: 76px;
+    left: 19px
+  }
+
+  .currency-charge-from-menu {
+    top: 62px;
+    left: 59px;
+  }
+
+  .currency-charge-to-menu {
+    right: 140px;
+    top: 123px;
+  }
+
+  .currency-charge-to {
+    top: 137px;
+  }
+
+  .currency-charge-button {
+    right: 19px;
+    top: 60px;
+    padding: 44px 13px;
+  }
+
+  .currency-charge-sum {
+    left: 19px;
+  }
+
+  .currency-charge-input-wrapper {
+    right: 19px;
+  }
+
+  .currency-charge-input {
+    width: 200px;
+  }
+
+  .main__history-row, .main__table-head {
+    padding: 10px 10px;
+  }
+
+  .main__grafic {
+    display: none;
+  }
+
+  .main__grafic-big {
+    display: none;
+  }
+
+  .main__title {
+    font-size: 25px;
+  }
+  .main__subtitle {
+  font-size: 20px;
+  }
+}

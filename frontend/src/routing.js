@@ -117,18 +117,22 @@ export function initRouter() {
     await BankingApi.createAccount(token)
       .then(async () => {
         const accs = await BankingApi.pullAccaunts(token);
-        CurrentPage.updateList(accs.payload);
+        CurrentPage.updateList(accs.payload, (e) => {
+          router.navigate(
+            `account/details/${u(e.currentTarget).attr('data-id')}`
+          );
+        });
       })
       .catch(async (err) => {
         if (err.type === 'Unauthorized') {
           exitApp();
         } else if (err.type === 400) {
           u('main').html('');
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне клиента!');
         } else if (err.type === 500) {
           u('main').html('');
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне сервера!');
         } else {
           throw err;
@@ -142,7 +146,7 @@ export function initRouter() {
       });
   }
 
-  async function makeTranzaction(e, CurrentPage) {
+  async function makeTranzaction(e, CurrentPage, thisAccauntNumber) {
     const form = u(e.currentTarget);
     const numberInput = form.find('.main__form-tranz-number').nodes[0];
     const sumInput = form.find('.main__form-tranz-count').nodes[0];
@@ -177,6 +181,14 @@ export function initRouter() {
       sumInput.value = '';
       invalid = true;
     }
+    if (number === thisAccauntNumber) {
+      RenderElem.error(
+        u('.main__form-tranz-wrapper-number'),
+        'Нельзя перевести средства самому себе!'
+      );
+      numberInput.value = '';
+      invalid = true;
+    }
     if (invalid) {
       return;
     }
@@ -195,11 +207,11 @@ export function initRouter() {
           exitApp();
         } else if (err.type === 400) {
           u('main').html('');
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне клиента!');
         } else if (err.type === 500) {
           u('main').html('');
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне сервера!');
         } else {
           throw err;
@@ -216,7 +228,61 @@ export function initRouter() {
     return true;
   }
 
+  async function chargeCurence(from, to, token, input, CurrentPage) {
+    const inputWrapper = u(input).closest('.currency-charge-input-wrapper');
+    input.blur();
+    if (from === to) {
+      RenderElem.error(inputWrapper, 'Некорректный выбор валют');
+      input.value = '';
+      return;
+    }
+    if (input.value.length === 0) {
+      RenderElem.error(inputWrapper, 'Введите сумму');
+      input.value = '';
+      return;
+    }
+    RenderElem.spinner(u('main'));
+    u('button').attr('disabled', 'disabled');
+    const amount = Number(input.value);
+    await BankingApi.exchangeCurrency(from, to, amount, token)
+      .then((res) => {
+        CurrentPage.updateAccaunts(res.payload);
+      })
+      .catch((err) => {
+        const errorsTypeFromServer = [
+          'Overdraft',
+          'Unknown',
+          'Invalid',
+          'NotEnough',
+        ];
+        if (err.type === 'Unauthorized') {
+          exitApp();
+        } else if (err.type === 400) {
+          u('main').html('');
+          RenderElem.error(u('main'), err.message, 'error-big');
+          console.log('Какая то ошибка на стороне клиента!');
+        } else if (err.type === 500) {
+          u('main').html('');
+          RenderElem.error(u('main'), err.message, 'error-big');
+          console.log('Какая то ошибка на стороне сервера!');
+        } else if (errorsTypeFromServer.includes(err.type)) {
+          RenderElem.error(inputWrapper, err.message);
+          input.value = '';
+        } else {
+          throw err;
+        }
+      })
+      .finally(() => {
+        u('.spinner').remove();
+        u('button').each((el) => {
+          el.removeAttribute('disabled');
+        });
+        input.value = '';
+      });
+  }
+
   const router = new Navigo('/');
+  let socket;
 
   router.on('/', () => {
     const token = localStorage.getItem('token');
@@ -260,9 +326,7 @@ export function initRouter() {
             [
               (e) => {
                 e.dropdown = true;
-                u(e.currentTarget)
-                  .find('.dropdown-menu')
-                  .toggleClass('dropdown-menu--open');
+                u(e.currentTarget).toggleClass('dropdown-menu--open');
               },
               'click',
             ],
@@ -272,8 +336,8 @@ export function initRouter() {
             [
               (e) => {
                 if (e.dropdown) return;
-                if (u('.dropdown-menu').hasClass('dropdown-menu--open')) {
-                  u('.dropdown-menu').removeClass('dropdown-menu--open');
+                if (u('.dropdown-wrapper').hasClass('dropdown-menu--open')) {
+                  u('.dropdown-wrapper').removeClass('dropdown-menu--open');
                 }
               },
               'click',
@@ -343,10 +407,10 @@ export function initRouter() {
         if (err.type === 'Unauthorized') {
           exitApp();
         } else if (err.type === 400) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне клиента!');
         } else if (err.type === 500) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне сервера!');
         } else {
           throw err;
@@ -354,6 +418,7 @@ export function initRouter() {
       })
       .finally(() => {
         u('.spinner').remove();
+        RenderElem.activateNavMenu(u('.header__nav'));
       });
     return;
   });
@@ -375,8 +440,8 @@ export function initRouter() {
             [
               (e) => {
                 if (e.dropdown) return;
-                if (u('.dropdown-menu').hasClass('dropdown-menu--open')) {
-                  u('.dropdown-menu').removeClass('dropdown-menu--open');
+                if (u('.dropdown-wrapper ').hasClass('dropdown-menu--open')) {
+                  u('.dropdown-wrapper ').removeClass('dropdown-menu--open');
                 }
               },
               'click',
@@ -411,14 +476,19 @@ export function initRouter() {
                 const number = u(e.currentTarget).find(
                   '.main__form-tranz-number'
                 ).nodes[0].value;
-                const validTrans = await makeTranzaction(e, CurrentPage);
-                console.log(validTrans);
+                const pathname = location.pathname.split('/');
+                const validTrans = await makeTranzaction(
+                  e,
+                  CurrentPage,
+                  pathname[pathname.length - 1]
+                );
                 if (validTrans) {
-                  let saveNumbers = localStorage.getItem('accs');
+                  let saveNumbers = JSON.parse(localStorage.getItem('accs'));
                   if (saveNumbers) {
-                    saveNumbers = JSON.parse(saveNumbers);
-                    saveNumbers.push(number);
-                    localStorage.setItem('accs', JSON.stringify(saveNumbers));
+                    if (!saveNumbers.includes(number)) {
+                      saveNumbers.push(number);
+                      localStorage.setItem('accs', JSON.stringify(saveNumbers));
+                    }
                   } else {
                     localStorage.setItem('accs', JSON.stringify([number]));
                   }
@@ -431,7 +501,10 @@ export function initRouter() {
             '.main__form-tranz-count',
             [
               (e) => {
-                e.currentTarget.value = validateSum(e.currentTarget.value);
+                e.currentTarget.value = validateSum(
+                  e.currentTarget.value,
+                  e.inputType
+                );
                 if (e.currentTarget.value.length > 0) {
                   u(e.currentTarget).removeClass('error-input');
                   u('.main__form-tranz-wrapper-count').find('.error').remove();
@@ -498,10 +571,10 @@ export function initRouter() {
         if (err.type === 'Unauthorized') {
           exitApp();
         } else if (err.type === 400) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне клиента!');
         } else if (err.type === 500) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне сервера!');
         } else {
           throw err;
@@ -509,8 +582,8 @@ export function initRouter() {
       })
       .finally(() => {
         u('.spinner').remove();
+        RenderElem.activateNavMenu(u('.header__nav'));
       });
-    RenderElem.initNav(router);
     return;
   });
 
@@ -543,10 +616,10 @@ export function initRouter() {
         if (err.type === 'Unauthorized') {
           exitApp();
         } else if (err.type === 400) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне клиента!');
         } else if (err.type === 500) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне сервера!');
         } else {
           throw err;
@@ -554,6 +627,7 @@ export function initRouter() {
       })
       .finally(() => {
         u('.spinner').remove();
+        RenderElem.activateNavMenu(u('.header__nav'));
       });
     return;
   });
@@ -572,10 +646,10 @@ export function initRouter() {
       })
       .catch(async (err) => {
         if (err.type === 400) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне клиента!');
         } else if (err.type === 500) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне сервера!');
         } else if (err.type === 'Unauthorized') {
           exitApp();
@@ -585,6 +659,7 @@ export function initRouter() {
       })
       .finally(() => {
         u('.spinner').remove();
+        RenderElem.activateNavMenu(u('.header__nav'));
       });
   });
 
@@ -606,9 +681,7 @@ export function initRouter() {
             [
               (e) => {
                 e.dropdown = true;
-                u(e.currentTarget)
-                  .find('.dropdown-menu')
-                  .toggleClass('dropdown-menu--open');
+                u(e.currentTarget).toggleClass('dropdown-menu--open');
               },
               'click',
             ],
@@ -618,18 +691,70 @@ export function initRouter() {
             [
               (e) => {
                 if (e.dropdown) return;
-                if (u('.dropdown-menu').hasClass('dropdown-menu--open')) {
-                  u('.dropdown-menu').removeClass('dropdown-menu--open');
+                if (u('.dropdown-wrapper').hasClass('dropdown-menu--open')) {
+                  u('.dropdown-wrapper').removeClass('dropdown-menu--open');
                 }
               },
               'click',
+            ],
+          ],
+          [
+            '.currency-charge-input',
+            [
+              (e) => {
+                e.currentTarget.value = validateSum(
+                  e.currentTarget.value,
+                  e.inputType
+                );
+                if (e.currentTarget.value.length > 0) {
+                  u(e.currentTarget).removeClass('error-input');
+                  u('.currency-charge-input-wrapper').find('.error').remove();
+                }
+              },
+              'input',
+            ],
+          ],
+          [
+            '.currency-charge',
+            [
+              async (e) => {
+                e.preventDefault();
+                RenderElem.cleanErrors(u(e.currentTarget));
+                const from = u(e.currentTarget)
+                  .find('.currency-charge-from-menu .dropdown-value')
+                  .text();
+
+                const to = u(e.currentTarget)
+                  .find('.currency-charge-to-menu .dropdown-value')
+                  .text();
+                const token = localStorage.getItem('token');
+                const input = u(e.currentTarget).find('.currency-charge-input');
+                await chargeCurence(
+                  from,
+                  to,
+                  token,
+                  input.nodes[0],
+                  CurrentPage
+                );
+              },
+              'submit',
+            ],
+          ],
+          [
+            '.currency-charge-input',
+            [
+              (e) => {
+                e.currentTarget.value = notNullSumValid(e.currentTarget.value);
+                e.currentTarget.value = deleteDodInSum(e.currentTarget.value);
+              },
+              'blur',
             ],
           ],
         ]);
       })
       .catch(async (err) => {
         if (err.type === 400) {
-          RenderElem.error(u('main'), err, 'error-big');
+          RenderElem.error(u('main'), err.message, 'error-big');
           console.log('Какая то ошибка на стороне клиента!');
         } else if (err.type === 500) {
           RenderElem.error(u('main'), err, 'error-big');
@@ -639,7 +764,19 @@ export function initRouter() {
         } else {
           throw err;
         }
+      })
+      .finally(() => {
+        u('.spinner').remove();
+        RenderElem.activateNavMenu(u('.header__nav'));
       });
+    RenderElem.spinner(u('.currency-change-wrapper'));
+    if (!socket) {
+      socket = BankingApi.getChangedCurrency();
+      socket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        RenderElem.renderUlSocketList(data, u('.currency-change-list'));
+      };
+    }
   });
 
   router.on('/exit', () => {

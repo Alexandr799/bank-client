@@ -6,6 +6,7 @@ import './normalize.css';
 import '../node_modules/choices.js/public/assets/styles/choices.min.css';
 import 'simplebar/dist/simplebar.css';
 import './style.scss';
+import './media.scss';
 
 u('body').append(u('<header>').addClass('header'));
 u('body').append(u('<main>').addClass('main'));

@@ -56,10 +56,26 @@ export class RenderElem {
   static navMenu(elem) {
     const nav = u('<div>')
       .addClass('header__nav')
-      .append(u('<button>').text('Банкоматы').attr('data-value', 'banks'))
-      .append(u('<button>').text('Счета').attr('data-value', 'account'))
-      .append(u('<button>').text('Валюта').attr('data-value', 'currency'))
-      .append(u('<button>').text('Выйти').attr('data-value', 'exit'));
+      .append(
+        u('<button>')
+          .text('Банкоматы')
+          .attr({ 'data-value': 'banks', disabled: 'disabled' })
+      )
+      .append(
+        u('<button>')
+          .text('Счета')
+          .attr({ 'data-value': 'account', disabled: 'disabled' })
+      )
+      .append(
+        u('<button>')
+          .text('Валюта')
+          .attr({ 'data-value': 'currency', disabled: 'disabled' })
+      )
+      .append(
+        u('<button>')
+          .text('Выйти')
+          .attr({ 'data-value': 'exit', disabled: 'disabled' })
+      );
     nav.children().addClass('header__nav-btn');
     elem.append(nav);
   }
@@ -74,30 +90,37 @@ export class RenderElem {
         valuesList.push(el.text());
       }
     });
+
     dropdownMenu.parent().on('click', (e) => {
       e.dropdown = true;
     });
 
-    for (let i of list) {
-      if (dropdownMenu.children().nodes.length > 9) break;
-      if (i.startsWith(value) && !valuesList.includes(i)) {
-        dropdownMenu.append(u('<li>').text(i));
+    if (list != null) {
+      for (let i of list) {
+        if (dropdownMenu.children().nodes.length > 9) break;
+        if (i.startsWith(value) && !valuesList.includes(i)) {
+          dropdownMenu.append(u('<li>').text(i));
+        }
       }
     }
 
     if (dropdownMenu.children().nodes.length > 0) {
-      dropdownMenu.addClass('dropdown-menu--open');
+      dropdownMenu.closest('.dropdown-wrapper').addClass('dropdown-menu--open');
       dropdownMenu.children().each((el) => {
         u(el).on('click', (e) => {
           e.dropdown = true;
           input.value = u(el).text();
           u(input).removeClass('error-input');
           u('.main__form-tranz-wrapper-number').find('.error').remove();
-          dropdownMenu.removeClass('dropdown-menu--open');
+          dropdownMenu
+            .closest('.dropdown-wrapper')
+            .removeClass('dropdown-menu--open');
         });
       });
     } else {
-      dropdownMenu.removeClass('dropdown-menu--open');
+      dropdownMenu
+        .closest('.dropdown-wrapper')
+        .removeClass('dropdown-menu--open');
     }
   }
 
@@ -116,6 +139,33 @@ export class RenderElem {
     u(`.header__nav-btn[data-value=${path}]`).addClass(
       'header__nav-btn--active'
     );
+  }
+
+  static activateNavMenu(elem) {
+    elem.children().each((el) => {
+      el.removeAttribute('disabled');
+    });
+  }
+
+  static renderUlSocketList(data, elem) {
+    if (data.type != 'EXCHANGE_RATE_CHANGE' || data.change === 0) return;
+    const className =
+      data.change === -1
+        ? 'currency-change-minus-item'
+        : 'currency-change-plus-item';
+    elem.attr('style', 'display:none;');
+    elem.prepend(
+      u('<li>')
+        .addClass(className)
+        .append(u('<span>').text(`${data.from}/${data.to}`))
+        .append(u('<span>').text(data.rate))
+    );
+    const countLi = elem.children().nodes.length;
+    if (countLi > 20) {
+      elem.attr('style', 'display:block;');
+      elem.children().last().remove();
+      u('.spinner').remove();
+    }
   }
 }
 
@@ -137,7 +187,11 @@ export class HeadPage extends Page {
     const container = u('<div>').addClass('container', 'main__container');
     elem.append(container);
     container
-      .append(u('<h1>').addClass('title', 'main__title').text('Ваши счета'))
+      .append(
+        u('<h1>')
+          .addClass('title', 'main__title', 'main__title-accauts')
+          .text('Ваши счета')
+      )
       .append(
         u('<div>')
           .addClass('dropdown-wrapper', 'dropdown-sort-wrapper')
@@ -216,7 +270,7 @@ export class HeadPage extends Page {
     container.append(gridAccs);
   }
 
-  updateList(accs) {
+  updateList(accs, func) {
     u('.account__list').html('');
     const gridAccs = u('.account__list');
     for (let a of accs) {
@@ -247,6 +301,11 @@ export class HeadPage extends Page {
         lastDateTrans = '';
       }
       const listItem = u('<li>')
+        .attr({
+          'data-id': a.account,
+          'data-balance': a.balance === 0 ? '0' : a.balance,
+          'data-date': a.transactions[0] ? a.transactions[0].date : '0',
+        })
         .addClass('account__item')
         .append(u('<span>').text(`${a.account}`).addClass('account__item-id'))
         .append(u('<span>').text(`${balance}`).addClass('account__item-price'))
@@ -263,6 +322,7 @@ export class HeadPage extends Page {
             .text('Открыть')
             .addClass('account__item-btn')
             .attr('data-id', `${a.account}`)
+            .on('click', func)
         );
       gridAccs.append(listItem);
     }
@@ -843,6 +903,7 @@ export class CurrencyPage extends Page {
     for (let i of list) {
       const li = u('<li>').text(i);
       li.on('click', (e) => {
+        e.dropdown = true;
         u(e.currentTarget)
           .closest('.dropdown-currency-wrapper')
           .find('.dropdown-value')
@@ -863,10 +924,29 @@ export class CurrencyPage extends Page {
     return res;
   }
 
+  renderItemsAccs(currencyAccount, currencyListElem) {
+    for (let key of Object.keys(currencyAccount)) {
+      if (currencyAccount[key].amount === 0) continue;
+      let balance = currencyAccount[key].amount.toString();
+      balance = balance.replace(/(\d{1,3}(?=(?:\d\d\d)+(?!\d)))/g, '$1' + ' ');
+      if (balance.split('.')[1]) {
+        balance =
+          balance.split('.')[0] +
+          `.${balance.split('.')[1].replace(/\s/g, '')}`;
+      } else {
+        balance = balance.split('.')[0];
+      }
+      const li = u('<li>')
+        .addClass('currency-item')
+        .append(u('<span>').addClass('currency-item-name').text(key))
+        .append(u('<span>').addClass('currency-item-value').text(balance));
+      currencyListElem.append(li);
+    }
+  }
+
   render(elem, accs) {
     const currencyAccount = accs[0].payload;
     const currencyList = accs[1].payload;
-    console.log(currencyList);
     const container = u('<div>').addClass(
       'container',
       'main__container',
@@ -917,16 +997,7 @@ export class CurrencyPage extends Page {
     const currencyListChangeElem = u('<ul>').addClass('currency-change-list');
     u('.currency-list-wrapper').append(currencyListElem);
     u('.currency-change-wrapper').append(currencyListChangeElem);
-    for (let key of Object.keys(currencyAccount)) {
-      if (currencyAccount[key].amount === 0) continue;
-      let balance = currencyAccount[key].amount.toString();
-      balance = balance.replace(/(\d{1,3}(?=(?:\d\d\d)+(?!\d)))/g, '$1' + ' ');
-      const li = u('<li>')
-        .addClass('currency-item')
-        .append(u('<span>').addClass('currency-item-name').text(key))
-        .append(u('<span>').addClass('currency-item-value').text(balance));
-      currencyListElem.append(li);
-    }
+    this.renderItemsAccs(currencyAccount, currencyListElem);
     u('.currency-charge')
       .append(u('<div>').text('Из').addClass('currency-charge-from'))
       .append(
@@ -941,11 +1012,20 @@ export class CurrencyPage extends Page {
           currencyList[currencyList.length - 1]
         ).addClass('currency-charge-to-menu')
       )
-      .append(u('<input>').addClass('currency-charge-input'))
+      .append(
+        u('<div>')
+          .addClass('currency-charge-input-wrapper')
+          .append(u('<input>').addClass('currency-charge-input'))
+      )
       .append(u('<div>').text('Сумма').addClass('currency-charge-sum'))
       .append(
         u('<button>').text('Обменять').addClass('currency-charge-button')
       );
+  }
+
+  updateAccaunts(accs) {
+    u('.currency-list').html('');
+    this.renderItemsAccs(accs, u('.currency-list'));
   }
 
   init(btnActionObj) {
