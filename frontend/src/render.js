@@ -861,6 +861,25 @@ export class HistoryPage extends DetailsPage {
 }
 
 export class BanksPage extends Page {
+  async updateMap(accs) {
+    const maps = await ymaps.load(
+      'https://api-maps.yandex.ru/2.1/?apikey=bb1c3efc-6633-4fea-9d91-743ce21c05a3&lang=ru_RU'
+    );
+    let myMap = new maps.Map('map', {
+      center: [55.76, 37.64],
+      zoom: 10,
+    });
+    for (let i of accs) {
+      let myGeoObject = new maps.GeoObject({
+        geometry: {
+          coordinates: [i.lat, i.lon],
+          type: 'Point',
+        },
+      });
+      myMap.geoObjects.add(myGeoObject);
+    }
+  }
+
   async init() {
     const elem = this.elemPaste;
     const accs = this.data;

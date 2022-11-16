@@ -638,29 +638,40 @@ export function initRouter() {
     u('main').html('');
     u('title').text('Банкоматы');
     RenderElem.initNav(router, 'banks');
-    RenderElem.spinner(u('main'));
-    await BankingApi.getBanks()
-      .then((res) => {
-        const CurrentPage = new BanksPage(u('.main'), res.payload);
-        CurrentPage.init();
-      })
-      .catch(async (err) => {
-        if (err.type === 400) {
-          RenderElem.error(u('main'), err.message, 'error-big');
-          console.log('Какая то ошибка на стороне клиента!');
-        } else if (err.type === 500) {
-          RenderElem.error(u('main'), err.message, 'error-big');
-          console.log('Какая то ошибка на стороне сервера!');
-        } else if (err.type === 'Unauthorized') {
-          exitApp();
-        } else {
-          throw err;
-        }
-      })
-      .finally(() => {
-        u('.spinner').remove();
-        RenderElem.activateNavMenu(u('.header__nav'));
+    const data = JSON.parse(localStorage.getItem('GeoBanks'));
+    if (data != null) {
+      const CurrentPage = new BanksPage(u('.main'), data);
+      CurrentPage.init();
+      RenderElem.activateNavMenu(u('.header__nav'));
+      BankingApi.getBanks().then((res) => {
+        CurrentPage.updateMap(res.payload);
       });
+    } else {
+      RenderElem.spinner(u('main'));
+      await BankingApi.getBanks()
+        .then((res) => {
+          localStorage.setItem('GeoBanks', JSON.stringify(res.payload));
+          const CurrentPage = new BanksPage(u('.main'), res.payload);
+          CurrentPage.init();
+        })
+        .catch((err) => {
+          if (err.type === 400) {
+            RenderElem.error(u('main'), err.message, 'error-big');
+            console.log('Какая то ошибка на стороне клиента!');
+          } else if (err.type === 500) {
+            RenderElem.error(u('main'), err.message, 'error-big');
+            console.log('Какая то ошибка на стороне сервера!');
+          } else if (err.type === 'Unauthorized') {
+            exitApp();
+          } else {
+            throw err;
+          }
+        })
+        .finally(() => {
+          u('.spinner').remove();
+          RenderElem.activateNavMenu(u('.header__nav'));
+        });
+    }
   });
 
   router.on('/currency', async () => {

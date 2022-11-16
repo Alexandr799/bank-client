@@ -4,7 +4,8 @@
   "scripts": {
     "lint": "eslint ./",
     "build": "webpack --mode=production --env prod",
-    "dev": "webpack serve --mode=development"
+    "dev": "webpack serve --mode=development", 
+    "test": "cypress run"
   },
   "keywords": [],
   "author": "Alexandr Strigo",
