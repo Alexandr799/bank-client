@@ -1,8 +1,10 @@
+import URI from './env';
+
 export class BankingApi {
   constructor() {}
 
   static pushlogin(log, pass) {
-    return fetch('http://localhost:5000/login', {
+    return fetch(`${URI}/login`, {
       method: 'POST',
       body: JSON.stringify({ login: log, password: pass }),
       headers: { 'Content-Type': 'application/json' },
@@ -36,7 +38,7 @@ export class BankingApi {
   }
 
   static pullAccaunts(token) {
-    return fetch('http://localhost:5000/accounts', {
+    return fetch(`${URI}/accounts`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -71,7 +73,7 @@ export class BankingApi {
   }
 
   static pullDetailsAccaunts(token, id) {
-    return fetch(`http://localhost:5000/account/${id}`, {
+    return fetch(`${URI}/account/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +113,7 @@ export class BankingApi {
   }
 
   static getBanks() {
-    return fetch(`http://localhost:5000/banksAdress`)
+    return fetch(`${URI}/banksAdress`)
       .then((res) => {
         if (399 < res.status && res.status < 500) {
           const err = new Error('Что то пошло не так попробуйте еще раз!');
@@ -131,7 +133,7 @@ export class BankingApi {
   }
 
   static createAccount(token) {
-    return fetch('http://localhost:5000/create-account', {
+    return fetch(`${URI}/create-account`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -162,7 +164,7 @@ export class BankingApi {
   }
 
   static async transferFunds(from, to, amount, token) {
-    return fetch('http://localhost:5000/transfer-funds', {
+    return fetch(`${URI}/transfer-funds`, {
       method: 'POST',
       body: JSON.stringify({
         from,
@@ -198,7 +200,7 @@ export class BankingApi {
   }
 
   static getCurrencyAccounts(token) {
-    return fetch('http://localhost:5000/currencies', {
+    return fetch(`${URI}/currencies`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -229,7 +231,7 @@ export class BankingApi {
   }
 
   static getKnownCurrwncies() {
-    return fetch('http://localhost:5000/all-currencies')
+    return fetch(`${URI}/all-currencies`)
       .then((res) => {
         if (399 < res.status && res.status < 500) {
           const err = new Error('Что то пошло не так попробуйте еще раз!');
@@ -254,7 +256,7 @@ export class BankingApi {
   }
 
   static exchangeCurrency(from, to, amount, token) {
-    return fetch('http://localhost:5000/currency-buy', {
+    return fetch(`${URI}/currency-buy`, {
       method: 'POST',
       body: JSON.stringify({
         from,
@@ -312,6 +314,6 @@ export class BankingApi {
   }
 
   static getChangedCurrency() {
-    return new WebSocket('ws://localhost:5000/currency-feed');
+    return new WebSocket(`ws://${URI}/currency-feed`);
   }
 }
