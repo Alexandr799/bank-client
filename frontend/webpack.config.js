@@ -59,6 +59,7 @@ module.exports = (env) => ({
   devServer: {
     hot: true,
     historyApiFallback: true,
+    open: true,
   },
   optimization: {
     minimizer: [

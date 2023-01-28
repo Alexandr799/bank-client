@@ -3,8 +3,6 @@ import Chart from 'chart.js/auto';
 import ymaps from 'ymaps';
 
 export class RenderElem {
-  constructor() {}
-
   static loginForm() {
     return u('<form>')
       .addClass('login-form', 'main__login-from')
