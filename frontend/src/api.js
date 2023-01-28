@@ -1,4 +1,4 @@
-import URI from './env';
+import URI, { WS } from './env';
 
 export class BankingApi {
   constructor() {}
@@ -314,6 +314,6 @@ export class BankingApi {
   }
 
   static getChangedCurrency() {
-    return new WebSocket(`ws://${URI}/currency-feed`);
+    return new WebSocket(`${WS}/currency-feed`);
   }
 }
