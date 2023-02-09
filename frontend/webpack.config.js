@@ -7,8 +7,11 @@ const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 // eslint-disable-next-line no-undef
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 // eslint-disable-next-line no-undef
+const TerserPlugin = require("terser-webpack-plugin");
+// eslint-disable-next-line no-undef
 module.exports = (env) => ({
   entry: './src/index.js',
+  mode:process.env.MODE,
   output: {
     filename: 'index.[contenthash].js',
     publicPath: '/',
@@ -54,7 +57,7 @@ module.exports = (env) => ({
     new MiniCssExtractPlugin({
       filename: 'main.[contenthash].css',
     }),
-    new FaviconsWebpackPlugin('./src/assert/img/Logo.svg'),
+    new FaviconsWebpackPlugin('./src/assert/img/Logo.svg')
   ],
   devServer: {
     hot: true,
@@ -62,7 +65,9 @@ module.exports = (env) => ({
     open: true,
   },
   optimization: {
+    minimize: true,
     minimizer: [
+      new TerserPlugin(),
       new ImageMinimizerPlugin({
         minimizer: {
           implementation: ImageMinimizerPlugin.imageminMinify,
