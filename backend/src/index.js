@@ -58,7 +58,6 @@ const KNOWN_CURRENCY_CODES = Object.freeze([
 let currencyFeedSubscribers = []
 
 const data = readData()
-
 pregenerateMineCurrencies(data, KNOWN_CURRENCY_CODES)
 premakeAccounts(data, KNOWN_OTHER_ACCOUNTS)
 pregenerateHistory(data, [MINE_ACCOUNT], true)
@@ -336,43 +335,43 @@ function getExchangeRate(currency1, currency2) {
   return 0
 }
 
-const currencyRateFeedGenerator = setInterval(() => {
-  // generate currency exchange rate change
-  const currenciesLength = KNOWN_CURRENCY_CODES.length
-  const index1 = Math.floor(Math.random() * currenciesLength)
-  let index2 = Math.floor(Math.random() * currenciesLength)
-  if (index1 === index2) {
-    index2 = (index2 + 1) % currenciesLength
-  }
-  const from = KNOWN_CURRENCY_CODES[index1]
-  const to = KNOWN_CURRENCY_CODES[index2]
-  const rate = formatAmount(0.001 + Math.random() * 100)
-  const previousExchangeRate = getExchangeRate(from, to)
-  const change = rate > previousExchangeRate ? 1 : rate < previousExchangeRate ? -1 : 0
-  setExchangeRate(from, to, rate)
-  writeData(data)
-  currencyFeedSubscribers.forEach(subscriber => subscriber.send(
-    JSON.stringify({
-      type: 'EXCHANGE_RATE_CHANGE',
-      from,
-      to,
-      rate,
-      change
-    })
-  ))
+// const currencyRateFeedGenerator = setInterval(() => {
+//   // generate currency exchange rate change
+//   const currenciesLength = KNOWN_CURRENCY_CODES.length
+//   const index1 = Math.floor(Math.random() * currenciesLength)
+//   let index2 = Math.floor(Math.random() * currenciesLength)
+//   if (index1 === index2) {
+//     index2 = (index2 + 1) % currenciesLength
+//   }
+//   const from = KNOWN_CURRENCY_CODES[index1]
+//   const to = KNOWN_CURRENCY_CODES[index2]
+//   const rate = formatAmount(0.001 + Math.random() * 100)
+//   const previousExchangeRate = getExchangeRate(from, to)
+//   const change = rate > previousExchangeRate ? 1 : rate < previousExchangeRate ? -1 : 0
+//   setExchangeRate(from, to, rate)
+//   writeData(data)
+//   currencyFeedSubscribers.forEach(subscriber => subscriber.send(
+//     JSON.stringify({
+//       type: 'EXCHANGE_RATE_CHANGE',
+//       from,
+//       to,
+//       rate,
+//       change
+//     })
+//   ))
 
-  // pick random user account and generate random transaction for it
-  if (Math.random() > 0.9) {
-    const account = data.accounts[MINE_ACCOUNT]
-    const amount = formatAmount(Math.random() * 1000)
-    account.balance = formatAmount(account.balance + amount)
-    account.transactions.push({
-      amount,
-      date: (new Date()).toISOString(),
-      from: generateAccountId(),
-      to: MINE_ACCOUNT
-    })
-    writeData(data)
-  }
-}, 1000)
-currencyRateFeedGenerator.unref()
+//   // pick random user account and generate random transaction for it
+//   if (Math.random() > 0.9) {
+//     const account = data.accounts[MINE_ACCOUNT]
+//     const amount = formatAmount(Math.random() * 1000)
+//     account.balance = formatAmount(account.balance + amount)
+//     account.transactions.push({
+//       amount,
+//       date: (new Date()).toISOString(),
+//       from: generateAccountId(),
+//       to: MINE_ACCOUNT
+//     })
+//     writeData(data)
+//   }
+// }, 1000)
+// currencyRateFeedGenerator.unref()
